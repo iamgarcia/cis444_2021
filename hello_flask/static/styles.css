@@ -1,0 +1,21 @@
+body {
+	font-family: 'Birthstone', cursive;
+}
+
+#tribute {
+	background-image: url("https://cis444-2021-iamgarcia.s3.us-west-1.amazonaws.com/images/sunset.jpg");
+}
+
+#img-gallery {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-evenly; 
+}
+
+#img-gallery > img {
+	border-color: #DC1F1F;
+	border-style: solid;
+	border-width: 3px;
+	padding: 5px;
+	object-fit: cover;
+}

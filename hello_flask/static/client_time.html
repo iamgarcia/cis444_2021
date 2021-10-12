@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <!-- head definitions go here -->
-	<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
-    </head>
-    <body>
-	    <h1 id="mytime"></h1>
-	<script>
-		setInterval( function(){ $('#mytime').html( "Time is " + new Date());}, 500);
-	</script>
-    </body>
+    	<head>
+        	<!-- head definitions go here -->
+		<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    	</head>
+	<body>
+	    	<h2 id="mytime"></h2>
+		<h1>Professor Jardin in Anime Form</h1>
+		<img style="width: 650px; height: 450px;" src="https://img.mipon.org/wp-content/uploads/2019/04/05164321/saitama-one-punch-man-oppai-shirt1.jpg">	
+		<button id="one-punch-man" type="button">Saitama</button>
+		<script>
+			setInterval( function(){ $('#mytime').html( "Time is " + new Date());}, 500);
+			$('#one-punch-man').click(function() {
+				alert("If you really want to become strong, stop caring about what others think about you. Living your life has nothing to do with what others think.\n\n--Saitama");
+			})
+		</script>
+	</body>
 </html>

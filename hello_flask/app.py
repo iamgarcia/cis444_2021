@@ -39,8 +39,7 @@ def backp():
 #Assigment 2
 @app.route('/ss1') #endpoint
 def ss1():
-    return render_template('server_side.html', imgs_url=IMGS_URL[CUR_ENV])
-
+    return render_template('server_time.html', imgs_url=IMGS_URL[CUR_ENV])
 
 app.run(host='0.0.0.0', port=80)
 
