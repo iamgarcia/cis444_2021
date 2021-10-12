@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+<<<<<<< HEAD
     <head>
         <!-- head definitions go here -->
 	 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
@@ -14,4 +15,49 @@
 	    <h2 id="hello"> </h2>
 	    <h1>Server Time is {{server_time}}</h1>
     </body>
+=======
+	<head>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Birthstone&display=swap" rel="stylesheet">
+		<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="{{url_for('static', filename='styles.css')}}">
+	</head>
+	<body id="tribute" style="margin:0 15%">	
+		<h1 style="text-align: center; font-size: 2vw;">R.I.P. Sarai Alvarez Bolanos</h1>
+		<div id="img-gallery">
+			<img id="image-1" src="{{imgs_url}}/sarai-1.jpg" style="width: 480px; height: 270px;">
+			<img id="image-2" src="{{imgs_url}}/sarai-2.jpg" style="width: 270px; height: 400px;">
+			<img id="image-3" src="{{imgs_url}}/sarai-3.jpg" style="width: 270px; height: 400px;">
+			<img id="image-4" src="{{imgs_url}}/sarai-4.jpg" style="width: 480px; height: 270px;">
+			<img id="image-5"  src="{{imgs_url}}/sarai-5.jpg" style="width: 480px; height: 270px;">
+			<img id="image-6" src="{{imgs_url}}/sarai-6.jpg" style="width: 480px; height: 270px;">
+		</div>
+		<p id="caption" style="text-align: center; font-size: 2em;">
+			I've known Sarai for a little over two years now. We've worked together,
+			studied together, hung out together, and have grown together. She's
+			been a mentor to me and has helped me through tough times by being
+			super supportive. To this day, I still remember how she bought
+			me a small cake and some sugar cookies for my birthday, even though
+			I briefly mentioned my birthday a week before. She's such a sweet
+			and selfless friend. She was a beacon of light in everyone's life.
+			I will miss her. Rest in peace Sarai.
+		</p>
+		<script>
+			$("#image-1").hide();
+			$("#image-2").hide();
+			$("#image-3").hide();
+			$("#image-4").hide();
+			$("#image-5").hide();
+			$("#image-6").hide();		
+
+			$("#image-1").fadeIn(1000);
+			$("#image-2").fadeIn(2000);
+			$("#image-3").fadeIn(3000);
+			$("#image-4").fadeIn(4000);
+			$("#image-5").fadeIn(5000);
+			$("#image-6").fadeIn(6000);
+		</script>
+	</body>
+>>>>>>> Assignment 2 wrap up
 </html>

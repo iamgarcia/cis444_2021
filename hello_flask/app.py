@@ -64,7 +64,7 @@ def auth():
 #Assigment 2
 @app.route('/ss1') #endpoint
 def ss1():
-    return render_template('server_side.html', imgs_url=IMGS_URL[CUR_ENV])
+    return render_template('server_time.html', imgs_url=IMGS_URL[CUR_ENV])
 
 @app.route('/getTime') #endpoint
 def get_time():
@@ -96,7 +96,6 @@ def hellodb():
     cur.execute("insert into music values( 'dsjfkjdkf', 1);")
     global_db_con.commit()
     return json_response(status="good")
-
 
 app.run(host='0.0.0.0', port=80)
 
