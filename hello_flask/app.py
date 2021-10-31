@@ -5,7 +5,6 @@ import jwt
 import datetime
 import bcrypt
 
-
 from db_con import get_db_instance, get_db
 
 app = Flask(__name__)
@@ -59,8 +58,6 @@ def auth():
         print(request.form)
         return json_response(data=request.form)
 
-
-
 #Assigment 2
 @app.route('/ss1') #endpoint
 def ss1():
@@ -88,7 +85,6 @@ def exposejwt():
     jwt_token = request.args.get('jwt')
     print(jwt_token)
     return json_response(output=jwt.decode(jwt_token, JWT_SECRET, algorithms=["HS256"]))
-
 
 @app.route('/hellodb') #endpoint
 def hellodb():
