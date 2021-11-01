@@ -46,9 +46,9 @@ def isValidToken(token):
 		print("The server has no token.")
 		return False
 	else:
-		server_token = jwt.decode(TOKEN, SECRET, algorithms=["HS256"])
-		client_token = jwt.decode(token, SECRET, algorithms=["HS256"])
-		
+		server_token = jwt.decode(TOKEN, JWT_SECRET, algorithms=["HS256"])
+		client_token = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+
 		if server_token == client_token:
 			print("The token is valid.")
 			return True
@@ -56,34 +56,56 @@ def isValidToken(token):
 			print("The token is invalid.")
 			return False
 
+def getUserId(token):
+	return jwt.decode(TOKEN, JWT_SECRET, algorithms=["HS256"])
+
 @app.route('/', methods=['GET']) #endpoint
 def index():
 	return render_template('books_app.html')
 
 @app.route('/login', methods=['POST']) #endpoint
 def login():
+	form = request.form
 	cur = global_db_con.cursor()
-	cur.execute("SELECT * FROM users WHERE username='" + request.form['username'] + "';")
+	cur.execute("SELECT * FROM users WHERE username='" + form['username'] + "';")
 	row = cur.fetchone()
 
 	if row is None:
-		print("The username '" + request.form['username'] + "' does not exist.")
-		return jsonify({"message1": "The username '" + request.form['username'] + "' does not exist."})
+		print("The username '" + form['username'] + "' does not exist.")
+		return json_response(data={"message": "The username '" + form['username'] + "' does not exist."}, status=404)
 	else:
-		if request.form['password'] == row[2]:
-			print(request.form['username'] + " is authorized.")
-
-			TOKEN = jwt.encode({"username": request.form['username']}, JWT_SECRET, algorithm="HS256")
-			
-			return jsonify({"message2": "Authentication successful.", "jwt": TOKEN})
+		if form['password'] == row[2]:
+			print(form['username'] + " is authorized.")
+			global TOKEN
+			TOKEN = jwt.encode({"user_id": row[0]}, JWT_SECRET, algorithm="HS256")
+			return json_response(data={"jwt": TOKEN})
 		else:
-			print('The password for ' + request.form['username'] + ' is incorrect.')
-			return jsonify({"message3": "The password for '" + request.form['username'] + "' is incorrect."})
+			print('The password for ' + form['username'] + ' is incorrect.')
+			return json_response(data={"message": "The password for '" + form['username'] + "' is incorrect."}, status=404)
 
 @app.route('/getBooks', methods=['POST'])
 def getBooks():
-	if isValidToken(request.form['jwt']) == True:
-		print("Retrieving books since token is valid.")
+	form = request.form
+
+	if isValidToken(form['jwt']) == True:
+		print("Token is valid. Retrieving books.")
+		cur = global_db_con.cursor()
+
+		try:
+			jwt_str = getUserId(TOKEN)
+			cur.execute("SELECT * FROM books WHERE NOT EXISTS " +
+					"(SELECT FROM purchased_books WHERE " +
+					"books.id = purchased_books.book_id AND " +
+					jwt_str['user_id'] + " = purchased_books.user_id)")
+			print("Retrieved books.")
+		except:
+			print("Unable to retrieve books.")
+			return json_response(data={"message": "Unable to retrieve books."}, status=500)
+
+		# Process cur.execute
+	else:
+		print()
+		return json_response(data={"message": "Token is invalid."}, status=404)
 
 @app.route('/exposejwt') #endpoint
 def exposejwt():

@@ -5,49 +5,43 @@
 	<body>
 		<div id="login">
 			<h2>User Login</h2>
-			<form id="loginForm" action="login" method="post">
-				<label>Username:</label><br>
-				<input type="text" id="usernameInput" name="username"></input><br>
+			<label>Username:</label><br>
+			<input type="text" id="userInput" name="username"></input><br>
 			
-				<label>Password:</label><br>
-				<input type="password" id="passwordInput" name="password"></input><br><br>
+			<label>Password:</label><br>
+			<input type="password" id="passInput" name="password"></input><br><br>
 
-				<input type="submit" value="Login">
-			</form>
+			<input type="submit" value="Login" onclick="verification()">
 		</div>
+
 		<div id="bookList">
 			<h2>Book List</h2>
 			<p>Lorem ipsum.</p>
 		</div>
+
 		<script>
-			$(document).ready(function() {
-				var token;
-				$("#bookList").hide();
-				
-				$("#loginForm").on("submit", function(event) {
-					event.preventDefault();
-					$.ajax({
-						data: {
-							username: $("#usernameInput").val(),
-							password: $("#passwordInput").val()
-						},
-						type: "POST",
-						url: "/login"
-					})
-					.done(function(data) {
-						if(data.message1) {
-							alert(data.message1);
-						} else if(data.message2) {
-							alert(data.message2);
-							$("#login").hide();
-							$("#bookList").show();
-							token = data.jwt;
-						} else if(data.message3) {
-							alert(data.message3);
-						}
-					});
-				});
-			});
+			var token;
+
+			$("#bookList").hide();
+
+			async function verification() {
+				const response = await $.post("/login",
+					{"username": document.getElementById("userInput").value,
+					"password": document.getElementById("passInput").value},
+					"json");
+				if(response.status == 200) {
+					token = await response.data;
+					getBooks();
+					$("#login").hide();
+					$("#bookList").show();
+				} else {
+					alert(response.data.message);
+				}
+			}
+
+			async function getBooks() {
+				const response = await $.post("/getBooks", {"jwt": token.jwt}, "json");
+			}
 		</script>
 	</body>
 </html>
