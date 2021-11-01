@@ -1,4 +1,4 @@
-from flask import Flask,render_template,request
+from flask import Flask,render_template,request, jsonify
 from flask_json import FlaskJSON, JsonError, json_response, as_json
 
 import jwt
@@ -10,48 +10,20 @@ from db_con import get_db_instance, get_db
 app = Flask(__name__)
 FlaskJSON(app)
 
-USER_PASSWORDS = { "cjardin": "strong password"}
-
-IMGS_URL = {
-            "DEV" : "/static",
-            "INT" : "https://cis444-2021-iamgarcia.s3.us-west-1.amazonaws.com/images",
-            "PRD" : "https://d8brksoxvr34y.cloudfront.net/images"
-            }
-
-CUR_ENV = "PRD"
 JWT_SECRET = None
 
 global_db_con = get_db()
 
-
 with open("secret", "r") as f:
-    JWT_SECRET = f.read()
-
-@app.route('/') #endpoint
-def index():
-    return 'Web App with Python Caprice!' + USER_PASSWORDS['cjardin']
-
-@app.route('/buy') #endpoint
-def buy():
-    return 'Buy'
-
-@app.route('/hello') #endpoint
-def hello():
-    return render_template('hello.html',img_url=IMGS_URL[CUR_ENV] ) 
-
-@app.route('/back',  methods=['GET']) #endpoint
-def back():
-    return render_template('backatu.html',input_from_browser=request.args.get('usay', default = "nothing", type = str) )
+	JWT_SECRET = f.read()
 
 @app.route('/backp',  methods=['POST']) #endpoint
 def backp():
-    print(request.form)
-    salted = bcrypt.hashpw( bytes(request.form['fname'],  'utf-8' ) , bcrypt.gensalt(10))
-    print(salted)
-
-    print(  bcrypt.checkpw(  bytes(request.form['fname'],  'utf-8' )  , salted ))
-
-    return render_template('backatu.html',input_from_browser= str(request.form) )
+	print(request.form)
+	salted = bcrypt.hashpw(bytes(request.form['fname'], 'utf-8') , bcrypt.gensalt(10))
+	print(salted)
+	print(bcrypt.checkpw(bytes(request.form['fname'], 'utf-8'), salted))
+	return render_template('backatu.html',input_from_browser= str(request.form) )
 
 @app.route('/auth',  methods=['POST']) #endpoint
 def auth():
@@ -61,24 +33,37 @@ def auth():
 #Assigment 2
 @app.route('/ss1') #endpoint
 def ss1():
-    return render_template('server_time.html', imgs_url=IMGS_URL[CUR_ENV])
+	return render_template('server_time.html', imgs_url=IMGS_URL[CUR_ENV])
 
 @app.route('/getTime') #endpoint
 def get_time():
-    return json_response(data={"password" : request.args.get('password'),
-                                "class" : "cis44",
-                                "serverTime":str(datetime.datetime.now())
-                            }
-                )
+	return json_response(data={"password": request.args.get('password'), "class": "cis44", "serverTime": str(datetime.datetime.now())})
 
-@app.route('/auth2') #endpoint
-def auth2():
-    jwt_str = jwt.encode({"username" : "cary",
-                            "age" : "so young",
-                            "books_ordered" : ['f', 'e'] } 
-                            , JWT_SECRET, algorithm="HS256")
-    #print(request.form['username'])
-    return json_response(jwt=jwt_str)
+#Assignment 3
+@app.route('/', methods=['GET']) #endpoint
+def index():
+	return render_template('books_app.html')
+
+@app.route('/login', methods=['POST']) #endpoint
+def login():
+	cur = global_db_con.cursor()
+	cur.execute("SELECT * FROM users WHERE username='" + request.form['username'] + "';")
+	row = cur.fetchone()
+
+	if row is None:
+		print("The username '" + request.form['username'] + "' does not exist.")
+		return jsonify({"message1": "The username '" + request.form['username'] + "' does not exist."})
+	else:
+		if request.form['password'] == row[2]:
+			print(request.form['username'] + " is authorized.")
+
+			jwt_str = jwt.encode({"username": request.form['username'], "password": request.form['password']}, JWT_SECRET, algorithm="HS256")
+			print(jwt_str)
+			#return json_response(jwt=jwt_str)
+			return jsonify({"message2": "Authentication successful."})
+		else:
+			print('The password for ' + request.form['username'] + ' is incorrect.')
+			return jsonify({"message3": "The password for '" + request.form['username'] + "' is incorrect."})
 
 @app.route('/exposejwt') #endpoint
 def exposejwt():
