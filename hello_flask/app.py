@@ -11,6 +11,7 @@ app = Flask(__name__)
 FlaskJSON(app)
 
 JWT_SECRET = None
+TOKEN = None
 
 global_db_con = get_db()
 
@@ -40,6 +41,21 @@ def get_time():
 	return json_response(data={"password": request.args.get('password'), "class": "cis44", "serverTime": str(datetime.datetime.now())})
 
 #Assignment 3
+def isValidToken(token):
+	if TOKEN is None:
+		print("The server has no token.")
+		return False
+	else:
+		server_token = jwt.decode(TOKEN, SECRET, algorithms=["HS256"])
+		client_token = jwt.decode(token, SECRET, algorithms=["HS256"])
+		
+		if server_token == client_token:
+			print("The token is valid.")
+			return True
+		else:
+			print("The token is invalid.")
+			return False
+
 @app.route('/', methods=['GET']) #endpoint
 def index():
 	return render_template('books_app.html')
@@ -57,13 +73,17 @@ def login():
 		if request.form['password'] == row[2]:
 			print(request.form['username'] + " is authorized.")
 
-			jwt_str = jwt.encode({"username": request.form['username'], "password": request.form['password']}, JWT_SECRET, algorithm="HS256")
-			print(jwt_str)
-			#return json_response(jwt=jwt_str)
-			return jsonify({"message2": "Authentication successful."})
+			TOKEN = jwt.encode({"username": request.form['username']}, JWT_SECRET, algorithm="HS256")
+			
+			return jsonify({"message2": "Authentication successful.", "jwt": TOKEN})
 		else:
 			print('The password for ' + request.form['username'] + ' is incorrect.')
 			return jsonify({"message3": "The password for '" + request.form['username'] + "' is incorrect."})
+
+@app.route('/getBooks', methods=['POST'])
+def getBooks():
+	if isValidToken(request.form['jwt']) == True:
+		print("Retrieving books since token is valid.")
 
 @app.route('/exposejwt') #endpoint
 def exposejwt():

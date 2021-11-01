@@ -10,7 +10,7 @@
 				<input type="text" id="usernameInput" name="username"></input><br>
 			
 				<label>Password:</label><br>
-				<input type="text" id="passwordInput" name="password"></input><br><br>
+				<input type="password" id="passwordInput" name="password"></input><br><br>
 
 				<input type="submit" value="Login">
 			</form>
@@ -21,6 +21,7 @@
 		</div>
 		<script>
 			$(document).ready(function() {
+				var token;
 				$("#bookList").hide();
 				
 				$("#loginForm").on("submit", function(event) {
@@ -38,8 +39,9 @@
 							alert(data.message1);
 						} else if(data.message2) {
 							alert(data.message2);
-							$("#loginForm").hide();
+							$("#login").hide();
 							$("#bookList").show();
+							token = data.jwt;
 						} else if(data.message3) {
 							alert(data.message3);
 						}
