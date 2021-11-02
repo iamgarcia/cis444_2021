@@ -58,7 +58,9 @@ def isValidToken(token):
 			return False
 
 def getUserId(token):
-	return jwt.decode(TOKEN, JWT_SECRET, algorithms=["HS256"])
+	decoded_token = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+	print(decoded_token)
+	return decoded_token['user_id']
 
 @app.route('/', methods=['GET']) #endpoint
 def index():
@@ -93,11 +95,10 @@ def getBooks():
 		cur = global_db_con.cursor()
 
 		try:
-			jwt_str = getUserId(TOKEN)
 			cur.execute("SELECT * FROM books WHERE NOT EXISTS " +
 					"(SELECT FROM purchased_books WHERE " +
 					"books.id = purchased_books.book_id AND " +
-					str(jwt_str['user_id']) + " = purchased_books.user_id);")
+					str(getUserId(TOKEN)) + " = purchased_books.user_id);")
 			print("Retrieved books.")
 		except:
 			print("Unable to retrieve books.")
@@ -127,6 +128,21 @@ def getBooks():
 	else:
 		print("Token is invalid.")
 		return json_response(data={"message": "Token is invalid."}, status=404)
+
+@app.route('/purchaseBook', methods=["POST"])
+def purchaseBook():
+	form = request.form
+	cur = global_db_con.cursor()
+
+	try:
+		cur.execute("INSERT INTO purchased_books (user_id, book_id) VALUES (" + str(getUserId(TOKEN))  + ", " + str(form['book_id']) + ");")
+		global_db_con.commit()
+		print("Purchased book successfully.")
+		return json_response(data={"message": "Purchase of book went through successfully."})
+
+	except:
+		print("Unable to write to purchased_books table.")
+		return json_response(data={"message": "Unable to write to purchased_books table."}, status=500)
 
 @app.route('/exposejwt') #endpoint
 def exposejwt():

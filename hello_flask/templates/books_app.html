@@ -66,6 +66,11 @@
 					);					
 				}
 			}
+
+			async function purchaseBook(id) {
+				const response = await $.post("/purchaseBook", {"jwt": token.jwt, "book_id": id}, "json");
+				alert(response.data.message);
+			}
 		</script>
 	</body>
 </html>
