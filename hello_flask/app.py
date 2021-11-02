@@ -1,6 +1,7 @@
-from flask import Flask,render_template,request, jsonify
+from flask import Flask, render_template, request
 from flask_json import FlaskJSON, JsonError, json_response, as_json
 
+import json
 import jwt
 import datetime
 import bcrypt
@@ -96,15 +97,35 @@ def getBooks():
 			cur.execute("SELECT * FROM books WHERE NOT EXISTS " +
 					"(SELECT FROM purchased_books WHERE " +
 					"books.id = purchased_books.book_id AND " +
-					jwt_str['user_id'] + " = purchased_books.user_id)")
+					str(jwt_str['user_id']) + " = purchased_books.user_id);")
 			print("Retrieved books.")
 		except:
 			print("Unable to retrieve books.")
 			return json_response(data={"message": "Unable to retrieve books."}, status=500)
 
-		# Process cur.execute
+		message = "{\"books\":["
+		items = 0
+
+		while True:
+			row = cur.fetchone()
+
+			if row is None:
+				print("No more books to add.")
+				break;
+			else:
+				print("Adding book to JSON structure.")
+
+				if items > 0:
+					message += ","
+
+				message += "{\"book_id\": " + str(row[0]) + ", \"author\": \"" + row[1] + "\"" + ", \"title\": \"" + row[2] + "\"" + ", \"price\": " + str(row[3]) + "}"
+				items += 1
+
+		message += "]}"
+		print("Books payload created.")
+		return json_response(data=json.loads(message))
 	else:
-		print()
+		print("Token is invalid.")
 		return json_response(data={"message": "Token is invalid."}, status=404)
 
 @app.route('/exposejwt') #endpoint

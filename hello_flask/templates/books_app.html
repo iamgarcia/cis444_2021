@@ -1,6 +1,11 @@
 <html>
 	<head>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+		<style>
+			table, th, td {
+				border: 1px solid black;
+			}
+		</style>
 	</head>
 	<body>
 		<div id="login">
@@ -16,7 +21,18 @@
 
 		<div id="bookList">
 			<h2>Book List</h2>
-			<p>Lorem ipsum.</p>
+			<table>
+				<thead>
+					<tr>
+						<th></th>
+						<th>Author</th>
+						<th>Title</th>
+						<th>Price</th>
+					</tr>
+				</thead>
+				<tbody id="books">
+				</tbody>
+			</table>
 		</div>
 
 		<script>
@@ -41,6 +57,14 @@
 
 			async function getBooks() {
 				const response = await $.post("/getBooks", {"jwt": token.jwt}, "json");
+				for(i = 0; i < response.data.books.length; i++) {
+					$("#books").append(
+					"<tr><td><button id=\"" + response.data.books[i].book_id + "\" onclick=\"purchaseBook(this.id);\">Purchase</button></td>" +
+					"<td>" + response.data.books[i].author + "</td>" +
+					"<td>" + response.data.books[i].title + "</td>" +
+					"<td>$" + response.data.books[i].price + "</td></tr>"
+					);					
+				}
 			}
 		</script>
 	</body>
