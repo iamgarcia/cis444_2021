@@ -44,23 +44,19 @@ def get_time():
 #Assignment 3
 def isValidToken(token):
 	if TOKEN is None:
-		print("The server has no token.")
+		print("The server does not have a token saved.")
 		return False
 	else:
 		server_token = jwt.decode(TOKEN, JWT_SECRET, algorithms=["HS256"])
 		client_token = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
 
-		if server_token == client_token:
-			print("The token is valid.")
-			return True
-		else:
-			print("The token is invalid.")
-			return False
+		# If the token is valid, return True.
+		# Else, the token is invalid, return False.
+		return True if server_token == client_token else False
 
 def getUserId(token):
-	decoded_token = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
-	print(decoded_token)
-	return decoded_token['user_id']
+	exposed_token = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+	return exposed_token['user_id']
 
 @app.route('/', methods=['GET']) #endpoint
 def index():
@@ -70,7 +66,7 @@ def index():
 def login():
 	form = request.form
 	cur = global_db_con.cursor()
-	cur.execute("SELECT * FROM users WHERE username='" + form['username'] + "';")
+	cur.execute("SELECT * FROM users WHERE username='%s';" % (form['username']))
 	row = cur.fetchone()
 
 	if row is None:
@@ -95,10 +91,17 @@ def getBooks():
 		cur = global_db_con.cursor()
 
 		try:
-			cur.execute("SELECT * FROM books WHERE NOT EXISTS " +
-					"(SELECT FROM purchased_books WHERE " +
-					"books.id = purchased_books.book_id AND " +
-					str(getUserId(TOKEN)) + " = purchased_books.user_id);")
+			# Thanks Professor Jardin for the suggestion. I figured out how to achieve something similar
+			# using the joins method. Works like a charm!
+			psql_str = " ".join((
+				"SELECT * FROM books WHERE NOT EXISTS",
+				"(SELECT FROM purchased_books WHERE books.id = purchased_books.book_id AND",
+				str(getUserId(TOKEN)),
+				"= purchased_books.user_id);"
+			))
+
+			cur.execute(psql_str)
+
 			print("Retrieved books.")
 		except:
 			print("Unable to retrieve books.")
@@ -116,10 +119,12 @@ def getBooks():
 			else:
 				print("Adding book to JSON structure.")
 
-				if items > 0:
-					message += ","
+				if items > 0: message += ","
 
-				message += "{\"book_id\": " + str(row[0]) + ", \"author\": \"" + row[1] + "\"" + ", \"title\": \"" + row[2] + "\"" + ", \"price\": " + str(row[3]) + "}"
+				# Here, I used a string with string formatting. It's also a variation
+				# of Jardin's recommendation.
+				message += "{\"book_id\": %s, \"author\": %s, \"title\": %s, \"price\": %s}" % (str(row[0]), row[1], row[2], str(row[3]))
+
 				items += 1
 
 		message += "]}"
@@ -135,7 +140,7 @@ def purchaseBook():
 	cur = global_db_con.cursor()
 
 	try:
-		cur.execute("INSERT INTO purchased_books (user_id, book_id) VALUES (" + str(getUserId(TOKEN))  + ", " + str(form['book_id']) + ");")
+		cur.execute("INSERT INTO purchased_books (user_id, book_id) VALUES (%s, %s);" % (str(getUserId(TOKEN)), str(form['book_id'])))
 		global_db_con.commit()
 		print("Purchased book successfully.")
 		return json_response(data={"message": "Purchase of book went through successfully."})
