@@ -43,113 +43,117 @@ def get_time():
 
 #Assignment 3
 def isValidToken(token):
+
+	# The server does not have a token saved.
 	if TOKEN is None:
-		print("The server does not have a token saved.")
+		print("There is no token saved on the server.")
 		return False
 	else:
-		server_token = jwt.decode(TOKEN, JWT_SECRET, algorithms=["HS256"])
-		client_token = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+		# Decoding server side and client side tokens.
+		server_token = expose_jwt_token(TOKEN)
+		client_token = expose_jwt_token(token)
 
-		# If the token is valid, return True.
+		# Comparing the server side and client side tokens
+		# to see if they're a match.
+		# If the tokens are equivalent, return True.
 		# Else, the token is invalid, return False.
 		return True if server_token == client_token else False
 
-def getUserId(token):
-	exposed_token = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
-	return exposed_token['user_id']
+def expose_jwt_token(token):
+	return jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
 
-@app.route('/', methods=['GET']) #endpoint
+@app.route('/', methods=['GET']) # Endpoint
 def index():
 	return render_template('books_app.html')
 
-@app.route('/login', methods=['POST']) #endpoint
+@app.route('/login', methods=['POST']) # Endpoint
 def login():
-	form = request.form
-	cur = global_db_con.cursor()
-	cur.execute("SELECT * FROM users WHERE username='%s';" % (form['username']))
-	row = cur.fetchone()
+	cursor = global_db_con.cursor()
+	cursor.execute("SELECT * FROM users WHERE username = '%s';" % (request.form['username']))
+	psql_row = cursor.fetchone()
 
-	if row is None:
-		print("The username '" + form['username'] + "' does not exist.")
-		return json_response(data={"message": "The username '" + form['username'] + "' does not exist."}, status=404)
+	if psql_row is None:
+		print("The username '" + request.form['username'] + "' does not exist.")
+		return json_response(data={"message": "The username '" + request.form['username'] + "' does not exist."}, status=404)
 	else:
-		if form['password'] == row[2]:
-			print(form['username'] + " is authorized.")
+		if request.form['password'] == psql_row[2]:
+			print(request.form['username'] + " is authorized.")
 			global TOKEN
-			TOKEN = jwt.encode({"user_id": row[0]}, JWT_SECRET, algorithm="HS256")
+			TOKEN = jwt.encode({"user_id": psql_row[0]}, JWT_SECRET, algorithm="HS256")
 			return json_response(data={"jwt": TOKEN})
 		else:
-			print('The password for ' + form['username'] + ' is incorrect.')
-			return json_response(data={"message": "The password for '" + form['username'] + "' is incorrect."}, status=404)
+			print('The password for ' + request.form['username'] + ' is incorrect.')
+			return json_response(data={"message": "The password for '" + request.form['username'] + "' is incorrect."}, status=404)
 
-@app.route('/getBooks', methods=['POST'])
+@app.route('/getBooks', methods=['POST']) # Endpoint
 def getBooks():
-	form = request.form
-
-	if isValidToken(form['jwt']) == True:
-		print("Token is valid. Retrieving books.")
-		cur = global_db_con.cursor()
+	if isValidToken(request.form['jwt']) == True:
+		print("The token is valid. Processing the retrieval of books...")
+		cursor = global_db_con.cursor()
 
 		try:
+			exposed_jwt_token = expose_jwt_token(TOKEN)
+
 			# Thanks Professor Jardin for the suggestion. I figured out how to achieve something similar
 			# using the joins method. Works like a charm!
 			psql_str = " ".join((
 				"SELECT * FROM books WHERE NOT EXISTS",
 				"(SELECT FROM purchased_books WHERE books.id = purchased_books.book_id AND",
-				str(getUserId(TOKEN)),
+				str(exposed_jwt_token['user_id']),
 				"= purchased_books.user_id);"
 			))
 
-			cur.execute(psql_str)
-
-			print("Retrieved books.")
+			cursor.execute(psql_str)
+			print("Successfully retrieved books.")
 		except:
-			print("Unable to retrieve books.")
-			return json_response(data={"message": "Unable to retrieve books."}, status=500)
+			print("Failed to retrieve books.")
+			return json_response(data={"message": "Failed to retrieve books."}, status=500)
 
 		message = "{\"books\":["
-		items = 0
+		book_items = 0
 
 		while True:
-			row = cur.fetchone()
+			psql_row = cursor.fetchone()
 
-			if row is None:
-				print("No more books to add.")
+			if psql_row is None:
+				print("There are no more books to add.")
 				break;
 			else:
-				print("Adding book to JSON structure.")
+				print("Adding a book to the JSON structure...")
 
-				if items > 0: message += ","
+				if book_items > 0: message += ","
+
+				book_items += 1
 
 				# Here, I used a string with string formatting. It's also a variation
 				# of Jardin's recommendation.
-				message += "{\"book_id\": %s, \"author\": %s, \"title\": %s, \"price\": %s}" % (str(row[0]), row[1], row[2], str(row[3]))
+				message += "{\"book_id\": %s, \"author\": \"%s\", \"title\": \"%s\", \"price\": %s}" % (str(psql_row[0]), psql_row[1], psql_row[2], str(psql_row[3]))
 
-				items += 1
+				print("Added a book to the JSON structure.")
 
 		message += "]}"
-		print("Books payload created.")
+		print("The books JSON payload has been created.")
 		return json_response(data=json.loads(message))
 	else:
-		print("Token is invalid.")
-		return json_response(data={"message": "Token is invalid."}, status=404)
+		print("The token is invalid.")
+		return json_response(data={"message": "The token is invalid."}, status=404)
 
-@app.route('/purchaseBook', methods=["POST"])
+@app.route('/purchaseBook', methods=["POST"]) # Endpoint
 def purchaseBook():
-	form = request.form
-	cur = global_db_con.cursor()
+	cursor = global_db_con.cursor()
 
 	try:
-		cur.execute("INSERT INTO purchased_books (user_id, book_id) VALUES (%s, %s);" % (str(getUserId(TOKEN)), str(form['book_id'])))
+		exposed_jwt_token = expose_jwt_token(TOKEN)
+		cursor.execute("INSERT INTO purchased_books (user_id, book_id) VALUES (%s, %s);" % (str(exposed_jwt_token['user_id']), str(request.form['book_id'])))
 		global_db_con.commit()
-		print("Purchased book successfully.")
-		return json_response(data={"message": "Purchase of book went through successfully."})
+		print("Book purchase was successful.")
+		return json_response(data={"message": "Book purchase was successful."})
 
 	except:
-		print("Unable to write to purchased_books table.")
-		return json_response(data={"message": "Unable to write to purchased_books table."}, status=500)
+		print("Failed to write to the \"purchased_books\" table.")
+		return json_response(data={"message": "Failed to write to the \"purchased_books\" table."}, status=500)
 
-@app.route('/exposejwt') #endpoint
+@app.route('/exposejwt') # Endpoint
 def exposejwt():
     jwt_token = request.args.get('jwt')
     print(jwt_token)

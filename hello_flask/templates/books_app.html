@@ -1,5 +1,6 @@
 <html>
 	<head>
+		<title>Assignment 3</title>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 		<style>
 			table, th, td {
@@ -10,17 +11,18 @@
 	<body>
 		<div id="login">
 			<h2>User Login</h2>
+
 			<label>Username:</label><br>
-			<input type="text" id="userInput" name="username"></input><br>
+			<input type="text" id="usernameInput" name="username"></input><br>
 			
 			<label>Password:</label><br>
-			<input type="password" id="passInput" name="password"></input><br><br>
+			<input type="password" id="passwordInput" name="password"></input><br><br>
 
 			<input type="submit" value="Login" onclick="verification()">
 		</div>
 
 		<div id="bookList">
-			<h2>Book List</h2>
+			<h1>Amazon - an Online Bookstore</h1>
 			<table>
 				<thead>
 					<tr>
@@ -36,39 +38,56 @@
 		</div>
 
 		<script>
-			var token;
+			let token;
+			let response;
 
 			$("#bookList").hide();
 
 			async function verification() {
-				const response = await $.post("/login",
-					{"username": document.getElementById("userInput").value,
-					"password": document.getElementById("passInput").value},
-					"json");
-				if(response.status == 200) {
+				response = await $.post("/login",
+					{
+						"username": $("#usernameInput").val(),
+						"password": $("#passwordInput").val()
+					}, "json");
+				
+				if(response.status == 200) { // 200 = request has succeeded
 					token = await response.data;
 					getBooks();
+
 					$("#login").hide();
 					$("#bookList").show();
-				} else {
-					alert(response.data.message);
-				}
+				} else alert(response.data.message);
 			}
 
 			async function getBooks() {
-				const response = await $.post("/getBooks", {"jwt": token.jwt}, "json");
+				response = await $.post("/getBooks", 
+					{
+						"jwt": token.jwt
+					}, "json");
+				
 				for(i = 0; i < response.data.books.length; i++) {
+					button_tcol_html = `<td><button id=\"${response.data.books[i].book_id}\" onclick=\"purchaseBook(this.id);\">Purchase Book</button></td>`; 					
+					author_tcol_html = `<td>${response.data.books[i].author}</td>`;
+					title_tcol_html = `<td>${response.data.books[i].title}</td>`;
+					price_tcol_html = `<td>$${response.data.books[i].price}</td>`;
+					
 					$("#books").append(
-					"<tr><td><button id=\"" + response.data.books[i].book_id + "\" onclick=\"purchaseBook(this.id);\">Purchase</button></td>" +
-					"<td>" + response.data.books[i].author + "</td>" +
-					"<td>" + response.data.books[i].title + "</td>" +
-					"<td>$" + response.data.books[i].price + "</td></tr>"
-					);					
+						"<tr>" +
+							button_tcol_html +
+							author_tcol_html +
+							title_tcol_html +
+							price_tcol_html +
+						"</tr>"
+					);
 				}
 			}
 
 			async function purchaseBook(id) {
-				const response = await $.post("/purchaseBook", {"jwt": token.jwt, "book_id": id}, "json");
+				response = await $.post("/purchaseBook", 
+					{
+						"jwt": token.jwt, 
+						"book_id": id
+					}, "json");
 				alert(response.data.message);
 			}
 		</script>
