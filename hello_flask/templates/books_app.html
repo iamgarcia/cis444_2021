@@ -26,10 +26,10 @@
 			<table>
 				<thead>
 					<tr>
-						<th></th>
 						<th>Author</th>
 						<th>Title</th>
 						<th>Price</th>
+						<th></th>
 					</tr>
 				</thead>
 				<tbody id="books">
@@ -66,17 +66,17 @@
 					}, "json");
 				
 				for(i = 0; i < response.data.books.length; i++) {
-					button_tcol_html = `<td><button id=\"${response.data.books[i].book_id}\" onclick=\"purchaseBook(this.id);\">Purchase Book</button></td>`; 					
 					author_tcol_html = `<td>${response.data.books[i].author}</td>`;
 					title_tcol_html = `<td>${response.data.books[i].title}</td>`;
 					price_tcol_html = `<td>$${response.data.books[i].price}</td>`;
-					
+					button_tcol_html = `<td><button id=\"${response.data.books[i].book_id}\" onclick=\"purchaseBook(this.id);\">Purchase Book</button></td>`; 					
+
 					$("#books").append(
 						"<tr>" +
-							button_tcol_html +
 							author_tcol_html +
 							title_tcol_html +
 							price_tcol_html +
+							button_tcol_html +
 						"</tr>"
 					);
 				}

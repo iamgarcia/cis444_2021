@@ -127,7 +127,7 @@ def getBooks():
 
 				# Here, I used a string with string formatting. It's also a variation
 				# of Jardin's recommendation.
-				message += "{\"book_id\": %s, \"author\": \"%s\", \"title\": \"%s\", \"price\": %s}" % (str(psql_row[0]), psql_row[1], psql_row[2], str(psql_row[3]))
+				message += "{\"author\": \"%s\", \"title\": \"%s\", \"price\": %s, \"book_id\": %s}" % (psql_row[1], psql_row[2], str(psql_row[3]), str(psql_row[0]))
 
 				print("Added a book to the JSON structure.")
 
