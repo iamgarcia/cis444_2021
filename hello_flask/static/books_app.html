@@ -60,10 +60,12 @@
 			}
 
 			async function getBooks() {
-				response = await $.post("/secure_api/getBooks", 
+				response = await $.post("/secure_api/get_books", 
 					{
 						"jwt": token.jwt
 					}, "json");
+
+				console.log(response);
 				
 				for(i = 0; i < response.data.books.length; i++) {
 					author_tcol_html = `<td>${response.data.books[i].author}</td>`;
