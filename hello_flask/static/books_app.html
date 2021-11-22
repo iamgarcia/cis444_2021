@@ -85,7 +85,7 @@
 			}
 
 			async function purchaseBook(id) {
-				response = await $.post("/secure_api/purchaseBook", 
+				response = await $.post("/secure_api/purchase_book", 
 					{
 						"jwt": token.jwt, 
 						"book_id": id
