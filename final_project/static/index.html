@@ -1,0 +1,136 @@
+<html>
+    <head>
+        <title>Dear Santa</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    </head>
+    <body id="page">
+        <div class="snowflakes" aria-hidden="true">
+            <div class="snowflake">❅</div>
+            <div class="snowflake">❅</div>
+            <div class="snowflake">❅</div>
+            <div class="snowflake">❅</div>
+            <div class="snowflake">❅</div>
+            <div class="snowflake">❅</div>
+            <div class="snowflake">❅</div>
+            <div class="snowflake">❅</div>
+            <div class="snowflake">❅</div>
+            <div class="snowflake">❅</div>
+            <div class="snowflake">❅</div>
+            <div class="snowflake">❅</div>
+        </div>
+        <div id="signup">
+            <div id="form">
+                <h2>Create account</h2>
+                <label>Username:</label><br>
+                <input type="text" id="signupUsername" name="username"><br><br>
+                <label>Password:</label><br>
+                <input type="password" id="signupPassword" name="password"><br><br>
+                <input type="submit" value="Create account" onclick="signup()">
+                <p>Already have an account?<a id="signin-link" href="#" onclick="switch_to_login(); return false;">Sign in</a></p>
+            </div>
+        </div>
+        <div id="login">
+            <div id="form">
+                <h2>Sign in</h2>
+                <label>Username:</label><br>
+                <input type="text" id="loginUsername" name="username"><br><br>
+                <label>Password:</label><br>
+                <input type="password" id="loginPassword" name="password"><br><br>
+                <input type="submit" value="Sign in" onclick="login()">
+                <p>New?<a id="signin-link" href="#" onclick="switch_to_signup(); return false;">Create an account</a></p>
+            </div>
+        </div>
+        <div id="wishlist">
+            <table id="wishes">
+                <tr>
+                    <th>Wish</th>
+                    <th>Posted on</th>
+                </tr>
+                <tr>
+                    <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</td>
+                    <td>Maria Anders</td>
+                </tr>
+                <tr>
+                    <td>Alfreds Futterkiste</td>
+                    <td>Maria Anders</td>
+                </tr>
+                <tr>
+                    <td>Alfreds Futterkiste</td>
+                    <td>Maria Anders</td>
+                </tr>
+                <tr id="wish-posts">
+                </tr>
+            </table>
+        </div>
+        <script>
+            let token;
+            let response;
+
+            $("#wishlist").hide();
+            $("#login").hide();
+
+            function switch_to_login() {
+                $("#signup").hide();
+                $("#login").show();
+            }
+
+            function switch_to_signup() {
+                $("#login").hide();
+                $("#signup").show();
+            }
+
+            async function signup() {
+				response = await $.post("/open_api/signup",
+					{
+						"username": $("#signupUsername").val(),
+						"password": $("#signupPassword").val()
+					}, "json");
+				
+				if(response.status == 200) { // 200 = request has succeeded
+					token = await response.data;
+                    getWishlist();
+
+					$("#signup").hide();
+					$("#wishlist").show();
+				} else alert(response.data.message);
+            }
+
+            async function login() {
+				response = await $.post("/open_api/login",
+					{
+						"username": $("#loginUsername").val(),
+						"password": $("#loginPassword").val()
+					}, "json");
+				
+				if(response.status == 200) { // 200 = request has succeeded
+					token = await response.data;
+                    getWishlist();
+
+					$("#login").hide();
+					$("#wishlist").show();
+				} else alert(response.data.message);
+            }
+
+            async function getWishlist() {
+                response = await $.post("/secure_api/get_wishlist", 
+					{
+						"jwt": token.jwt
+					}, "json");
+				
+				for(i = 0; i < response.data.wishes.length; i++) {
+					var table = $("#wishes");
+                    var row = table.insertRow(-1);
+                    var left_cell = row.insertCell(0);
+                    var right_cell = row.insertCell(1);
+                    
+                    left_cell.innerHTML = response.data.wishes[i].wish;
+                    right_cell.innerHTML = response.data.wishes[i].timestamp;
+				}
+            }
+        </script>
+    </body>
+</html>
