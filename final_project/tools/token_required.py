@@ -21,7 +21,7 @@ def token_required(f):
 			token = request.form["jwt"]
 			logger.debug("Got token.")
 			data = jwt.decode(token, secret, algorithms=["HS256"])
-			print(data)
+			#print(data)
 			g.jwt_data = data
 			return f(*args, **kwargs)
 

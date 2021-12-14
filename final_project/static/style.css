@@ -72,7 +72,7 @@ label {
 
 #wishes{
     border-collapse: collapse;
-    width: 45%;
+    /* width: 55%; */
 }
 
 #wishes tbody {

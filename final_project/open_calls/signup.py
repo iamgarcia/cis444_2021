@@ -22,6 +22,7 @@ def handle_request():
     if psql_row is None:
         cursor.execute(f"INSERT INTO users (username, password) VALUES "
                        f"('{username_from_form}', '{password_from_form}');")
+        g.db.commit()
         cursor.execute(f"SELECT * FROM users "
                        f"WHERE username = '{username_from_form}';")
         psql_row = cursor.fetchone()

@@ -16,42 +16,35 @@ def handle_request():
 
 		# Thanks Professor Jardin for the suggestion. I figured out how to achieve something similar using
 		# the joins method. Works like a charm!
-		psql_str = " ".join((
-			"SELECT * FROM books WHERE NOT EXISTS",
-			"(SELECT FROM purchased_books WHERE books.id = purchased_books.book_id AND",
-			str(user_id),
-			"= purchased_books.user_id);"
-			))
-
+		psql_str = "SELECT * FROM wishes ORDER BY timestamp ASC;"
 		cursor.execute(psql_str)
-		print("Successfully retrieved books.")
-
+		#print("Successfully retrieved wishes.")
 	except:
-		print("Failed to retrieve books.")
-		return json_response(data={"message": "Failed to retrieve books."}, status=500)
+		#print("Failed to retrieve wishes.")
+		return json_response(data={"message": "Failed to retrieve wishes."}, status=500)
 
-	message = "{\"books\":["
-	book_items = 0
+	message = "{\"wishes\":["
+	wish_count = 0
 
 	while True:
 		psql_row = cursor.fetchone()
 
 		if psql_row is None:
-			print("There are no more books to add.")
+			#print("There are no more wishes to add.")
 			break;
 		else:
-			print("Adding a book to the JSON structure...")
+			#print("Adding a wish to the JSON structure...")
 
-			if book_items > 0: message += ","
+			if wish_count > 0: message += ","
 
-			book_items += 1
+			wish_count += 1
 
 			# Here, I used a string with string formatting. It's also a variation
 			# of Jardin's recommendation.
-			message += "{\"author\": \"%s\", \"title\": \"%s\", \"price\": %s, \"book_id\": %s}" % (psql_row[1], psql_row[2], str(psql_row[3]), str(psql_row[0]))
+			message += "{\"wish\": \"%s\", \"timestamp\": \"%s\"}" % (psql_row[0], psql_row[2])
 
-			print("Added a book to the JSON structure.")
+			#print("Added a wish to the JSON structure.")
 
 	message += "]}"
-	print("The books JSON payload has been created.")
+	#print("The wish JSON payload has been created.")
 	return json_response(data=json.loads(message))

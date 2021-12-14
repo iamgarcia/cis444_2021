@@ -19,8 +19,8 @@ def handle_request():
     try:
         cursor.execute(f"INSERT INTO wishes (wish, user_id, timestamp) VALUES ('{wish}', '{user_id}', '{timestamp}');")
         g.db.commit()
-        print("Wish was posted successfully.")
+        #print("Wish was posted successfully.")
         return json_response(data={"message": "Wish was posted successfully."})
     except:
-        print("Failed to write to the \"wishes\" table.")
+        #print("Failed to write to the \"wishes\" table.")
         return json_response(data={"message": "Failed to write to the \"wishes\" table."}, status=500)

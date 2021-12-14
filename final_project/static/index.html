@@ -84,7 +84,7 @@
 						"password": $("#signupPassword").val()
 					}, "json");
 				
-				if(response.status == 200) { // 200 = request has succeeded
+				if(response.status == 200) {
 					token = await response.data;
                     getWishlist();
 
@@ -101,7 +101,7 @@
 						"password": $("#loginPassword").val()
 					}, "json");
 				
-				if(response.status == 200) { // 200 = request has succeeded
+				if(response.status == 200) {
 					token = await response.data;
                     getWishlist();
 
@@ -116,29 +116,49 @@
 					{
 						"jwt": token.jwt
 					}, "json");
-				
+
 				for(i = 0; i < response.data.wishes.length; i++) {
-					var table = $("#wishes");
+					var table = document.getElementById("wishes");
                     var row = table.insertRow(-1);
                     var left_cell = row.insertCell(0);
                     var right_cell = row.insertCell(1);
+
+                    var wish = response.data.wishes[i].wish;
+                    var timestamp = convertTimezone(response.data.wishes[i].timestamp);
                     
-                    left_cell.innerHTML = response.data.wishes[i].wish;
-                    right_cell.innerHTML = response.data.wishes[i].timestamp;
+                    left_cell.innerHTML = wish;
+                    right_cell.innerHTML = timestamp;
 				}
             }
 
+            function updateWishlist(wish, timestamp) {
+                var table = document.getElementById("wishes");
+                var row = table.insertRow(-1);
+                var left_cell = row.insertCell(0);
+                var right_cell = row.insertCell(1);
+                    
+                left_cell.innerHTML = wish;
+                right_cell.innerHTML = timestamp;
+            }
+
             async function postWish() {
+                var wish = $("#post-area").val();
                 var timestamp = new Date(Date.now()).toISOString();
+                var user_timestamp = convertTimezone(timestamp)
 
                 response = await $.post("/secure_api/post_wish", 
 					{
 						"jwt": token.jwt, 
-						"wish": $("#post-area").val(),
+						"wish": wish,
                         "timestamp": timestamp
 					}, "json");
 				alert(response.data.message);
-                getWishlist();
+                updateWishlist(wish, user_timestamp);
+            }
+
+            function convertTimezone(date) {
+                user_timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                return new Date((typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", {timeZone: user_timezone}));
             }
         </script>
     </body>
