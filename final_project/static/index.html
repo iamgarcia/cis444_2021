@@ -50,27 +50,21 @@
                     <th>Wish</th>
                     <th>Posted on</th>
                 </tr>
-                <tr>
-                    <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</td>
-                    <td>Maria Anders</td>
-                </tr>
-                <tr>
-                    <td>Alfreds Futterkiste</td>
-                    <td>Maria Anders</td>
-                </tr>
-                <tr>
-                    <td>Alfreds Futterkiste</td>
-                    <td>Maria Anders</td>
-                </tr>
-                <tr id="wish-posts">
-                </tr>
             </table>
+        </div>
+        <div id="post-wish">
+            <div>
+                <br>
+                <textarea id="post-area" maxlength="255" ></textarea><br>
+                <input type="submit" value="Post your wish" onclick="postWish()">
+            </div>
         </div>
         <script>
             let token;
             let response;
 
             $("#wishlist").hide();
+            $("#post-wish").hide();
             $("#login").hide();
 
             function switch_to_login() {
@@ -96,6 +90,7 @@
 
 					$("#signup").hide();
 					$("#wishlist").show();
+                    $("#post-wish").show();
 				} else alert(response.data.message);
             }
 
@@ -112,6 +107,7 @@
 
 					$("#login").hide();
 					$("#wishlist").show();
+                    $("#post-wish").show();
 				} else alert(response.data.message);
             }
 
@@ -130,6 +126,19 @@
                     left_cell.innerHTML = response.data.wishes[i].wish;
                     right_cell.innerHTML = response.data.wishes[i].timestamp;
 				}
+            }
+
+            async function postWish() {
+                var timestamp = new Date(Date.now()).toISOString();
+
+                response = await $.post("/secure_api/post_wish", 
+					{
+						"jwt": token.jwt, 
+						"wish": $("#post-area").val(),
+                        "timestamp": timestamp
+					}, "json");
+				alert(response.data.message);
+                getWishlist();
             }
         </script>
     </body>
