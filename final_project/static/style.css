@@ -44,7 +44,7 @@ label {
 
 #signup {
     width: 400px;
-    height: 300px;
+    height: 325px;
     background-color: #FFFFFF;
     border-radius: 25px;
     box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
@@ -55,7 +55,7 @@ label {
 
 #login {
     width: 400px;
-    height: 300px;
+    height: 325px;
     background-color: #FFFFFF;
     border-radius: 25px;
     box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
@@ -68,11 +68,19 @@ label {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
+    max-width: 50%;
+    min-width: 35%;
+}
+
+#wishlist h2 {
+    color: #FFFFFF;
+    text-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
 }
 
 #wishes{
     border-collapse: collapse;
-    /* width: 55%; */
+    width: auto;
 }
 
 #wishes tbody {
@@ -96,4 +104,49 @@ label {
 
 #wishes tr:nth-child(even) {
     background-color: #DDDDDD;
+}
+
+.button1 {
+    display:inline-block;
+    padding:0.35em 1.2em;
+    border:1px solid rgb(118, 118, 118);
+    margin:0 0.3em 0.3em 0;
+    border-radius:0.12em;
+    box-sizing: border-box;
+    text-decoration:none;
+    font-size: 20px;
+    font-weight: bold;
+    color:#000000;
+    text-align:center;
+    transition: all 0.2s;
+}
+
+a.button1:hover{
+    color: #FFFFFF;
+    background-color: #C30F16;
+}
+
+.button2 {
+    display:inline-block;
+    padding:0.35em 1.2em;
+    border:1px solid rgb(118, 118, 118);
+    border-radius:0.12em;
+    box-sizing: border-box;
+    text-decoration:none;
+    font-size: 20px;
+    font-weight: bold;
+    color:#C30F16;
+    text-align:center;
+    transition: all 0.2s;
+    background-color: #FFFFFF;
+}
+
+a.button2:hover {
+    color: #FFFFFF;
+    background-color: #C30F16;
+}
+
+#wishlist textarea {
+    width: 50%;
+    resize: none;
 }

@@ -29,7 +29,7 @@
                 <input type="text" id="signupUsername" name="username"><br><br>
                 <label>Password:</label><br>
                 <input type="password" id="signupPassword" name="password"><br><br>
-                <input type="submit" value="Create account" onclick="signup()">
+                <a class="button1" type="submit" onclick="signup()">Create account</a>
                 <p>Already have an account?<a id="signin-link" href="#" onclick="switch_to_login(); return false;">Sign in</a></p>
             </div>
         </div>
@@ -40,25 +40,29 @@
                 <input type="text" id="loginUsername" name="username"><br><br>
                 <label>Password:</label><br>
                 <input type="password" id="loginPassword" name="password"><br><br>
-                <input type="submit" value="Sign in" onclick="login()">
+                <a class="button1" type="submit" onclick="login()">Sign in</a>
                 <p>New?<a id="signin-link" href="#" onclick="switch_to_signup(); return false;">Create an account</a></p>
             </div>
         </div>
         <div id="wishlist">
+            <h2>Welcome to Dear Santa! Below are the wishes made by people across the world. Go ahead and make a wish. Who knows, your wish might come true.</h2>
             <table id="wishes">
                 <tr>
                     <th>Wish</th>
                     <th>Posted on</th>
                 </tr>
             </table>
+            <br>
+            <textarea id="post-area" maxlength="255" rows="5" placeholder="Enter your wish here."></textarea><br>
+            <a class="button2" type="submit" onclick="postWish()">Post your wish</a>
         </div>
-        <div id="post-wish">
+        <!-- <div id="post-wish">
             <div>
                 <br>
-                <textarea id="post-area" maxlength="255" ></textarea><br>
-                <input type="submit" value="Post your wish" onclick="postWish()">
+                <textarea id="post-area" maxlength="255" placeholder="Enter your wish here."></textarea><br>
+                <a class="button2" type="submit" onclick="postWish()">Post your wish</a>
             </div>
-        </div>
+        </div> -->
         <script>
             let token;
             let response;
